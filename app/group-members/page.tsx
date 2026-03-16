@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getUserRooms, updateRoomProfile, type Room, type RoomMember } from "@/lib/api";
 import { useSocket } from "@/context/SocketContext";
 
-export default function GroupMembersPage() {
+function GroupMembersPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const roomId = searchParams.get("roomId");
@@ -357,5 +357,20 @@ export default function GroupMembersPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function GroupMembersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-100 dark:bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 dark:border-zinc-800 border-t-gray-900 dark:border-t-white mx-auto"></div>
+          <p className="text-gray-600 dark:text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    }>
+      <GroupMembersPageContent />
+    </Suspense>
   );
 }

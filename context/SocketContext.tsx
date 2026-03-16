@@ -3,10 +3,12 @@
 import { createContext, useContext, useEffect, ReactNode, useState } from "react";
 import socket from "@/lib/socket";
 import type { Socket } from "socket.io-client";
+import { useAuth } from "@/context/AuthContext";
 
 interface OnlineUsersContextType {
   socket: Socket;
   onlineUsers: Set<string>;
+  isConnected: boolean;
 }
 
 const SocketContext = createContext<OnlineUsersContextType | null>(null);
@@ -16,18 +18,31 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
+  const { token } = useAuth();
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Get token from localStorage
-    const token = localStorage.getItem("token");
-    
     if (token) {
       // Update socket auth with token
       socket.auth = { token };
-      
+
       // Connect socket
       socket.connect();
+      setIsConnected(socket.connected);
+
+      socket.on("connect", () => {
+        setIsConnected(true);
+      });
+
+      socket.on("disconnect", () => {
+        setIsConnected(false);
+      });
+
+      socket.on("connect_error", (err) => {
+        console.error("Socket connect error:", err.message);
+        setIsConnected(false);
+      });
 
       // Listen for the initial list of online users (sent when socket connects)
       socket.on("online_users_list", (data: { onlineUserIds: string[] }) => {
@@ -67,17 +82,25 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
           }
         })
         .catch((err) => console.error("Error fetching online users:", err));
+    } else {
+      // If there is no token, ensure socket is disconnected and online users are cleared
+      socket.disconnect();
+      setOnlineUsers(new Set());
+      setIsConnected(false);
     }
 
     return () => {
       socket.off("user_status");
       socket.off("online_users_list");
+       socket.off("connect");
+       socket.off("disconnect");
+       socket.off("connect_error");
       socket.disconnect();
     };
-  }, []);
+  }, [token]);
 
   return (
-    <SocketContext.Provider value={{ socket, onlineUsers }}>
+    <SocketContext.Provider value={{ socket, onlineUsers, isConnected }}>
       {children}
     </SocketContext.Provider>
   );

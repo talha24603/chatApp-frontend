@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSocket } from "@/context/SocketContext";
@@ -8,11 +8,11 @@ import { useAuth } from "@/context/AuthContext";
 import { getUserRooms, getRoomMessages, type Room, type Message, uploadMessageImage, deleteMessage } from "@/lib/api";
 import { formatDateSeparator, formatMessageTime, shouldShowDateSeparator } from "@/lib/utils";
 
-export default function ChatPage() {
+function ChatPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const roomId = searchParams.get("roomId");
-  const { socket, onlineUsers } = useSocket();
+  const { socket, onlineUsers, isConnected } = useSocket();
   const { user, token, isAuthenticated, logout } = useAuth();
   const currentUserId = user?.id;
   const currentUsername = user?.username;
@@ -310,9 +310,9 @@ export default function ChatPage() {
     if ((!text.trim() && !selectedImage) || !socket || !roomId || !currentUserId || !token) return;
 
     // Check if socket is connected
-    if (!socket.connected) {
+    if (!isConnected) {
       console.error("Socket is not connected");
-      alert("Connection lost. Please refresh the page.");
+      alert("Connecting to server. Please wait a moment and try again.");
       return;
     }
 
@@ -951,6 +951,21 @@ export default function ChatPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen items-center justify-center bg-gray-100 dark:bg-black">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 dark:border-zinc-800 border-t-gray-900 dark:border-t-white mx-auto"></div>
+          <p className="text-gray-600 dark:text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ChatPageContent />
+    </Suspense>
   );
 }
 

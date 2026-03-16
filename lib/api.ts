@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "http://16.171.55.221:5000";
 
 export interface RegisterData {
   username: string;

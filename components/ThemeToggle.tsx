@@ -3,6 +3,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/context/themeContext";
 
+type ThemeOption = {
+    value: "light" | "dark" | "system";
+    label: string;
+};
+
 const ThemeToggle = () => {
     const { theme, setTheme } = useTheme();
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -24,7 +29,7 @@ const ThemeToggle = () => {
         }
     }, [dropdownOpen]);
 
-    const themes = [
+    const themes: ThemeOption[] = [
         { value: "light", label: "Light" },
         { value: "dark", label: "Dark" },
         { value: "system", label: "System" },
