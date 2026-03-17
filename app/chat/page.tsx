@@ -402,7 +402,7 @@ function ChatPageContent() {
       <div className={`${selectedRoom ? 'hidden' : 'flex'} md:flex w-full md:w-1/4 border-r border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex-col`}>
         {/* Sidebar Header */}
         <div className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 px-4 py-4 flex items-center justify-between">
-          <h2 className="text-gray-900 dark:text-white text-lg font-semibold">Chats</h2>
+          <h2 className="text-gray-900 dark:text-white text-lg font-semibold">TalkShawk</h2>
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
