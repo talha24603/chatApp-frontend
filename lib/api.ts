@@ -1,4 +1,8 @@
+// Next.js uses process.env, but only for variables starting with NEXT_PUBLIC_
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// Add this temporarily to your component to verify it's working
+console.log("Backend URL check:", API_BASE_URL);
 export interface RegisterData {
   username: string;
   password: string;
